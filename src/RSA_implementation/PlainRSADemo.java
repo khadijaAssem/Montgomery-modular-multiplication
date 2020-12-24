@@ -2,8 +2,8 @@ package RSA_implementation;
 
 import java.math.BigInteger;
 import java.util.Random;
+import java.util.Vector;
 
-import RSA_implementation.Montogomery;
 /**
  * Disclaimer:
  * This code is for illustration purposes and shall never be used in any implementation in practice.
@@ -11,15 +11,16 @@ import RSA_implementation.Montogomery;
 
 public class PlainRSADemo {
 
-    /* Montogomery based modular arithemetic */
+    /* Montogomery based modular arithmetic */
 
-    private static BigInteger montExp(BigInteger a, BigInteger exponent, BigInteger N) {
+    public static BigInteger montExp(BigInteger a, BigInteger exponent, BigInteger N) {
         // Note: This code assumes the most significant bit of the exponent is 1, i.e., the exponent is not zero.
         Montogomery mont = new Montogomery(N);
         BigInteger aBar = mont.toMSpace(a);
 
         BigInteger result = aBar;
         int expBitlength = exponent.bitLength();
+        // Starts from expBitlength - 2 since the 1st bit is known to be 1
         for (int i = expBitlength - 2; i >= 0; i--) {
             result = mont.multiply(result,result);
             if (exponent.testBit(i)) {
@@ -46,7 +47,7 @@ public class PlainRSADemo {
         BigInteger result = a;
         int expBitlength = exponent.bitLength();
         for (int i = expBitlength - 2; i >= 0; i--) {
-            result = result.multiply(result).mod(N);// Should be replaced by ab mod N by mntogomery
+            result = result.multiply(result).mod(N);// Should be replaced by ab mod N by montogomery
             if (exponent.testBit(i)) {
                 result = result.multiply(a).mod(N);
             }
@@ -108,6 +109,15 @@ public class PlainRSADemo {
         }
         System.out.println("Time taken by montogomery multiplication " + (end-start));
 
+        int twenty = 20;
+        int sum = 0;
+        while (twenty-- != 0) {
+            SideChannelAttack SCA = new SideChannelAttack();
+            SCA.collectTMeasurs(1000, modulus, d, e);
+            System.out.println("\nIn iteration " + ( 20 - twenty ) + " : ");
+            sum += SCA.execute();
+        }
+        System.out.println("Of 20 iterations " + (20-sum) + " faild");
     }
 
 }
